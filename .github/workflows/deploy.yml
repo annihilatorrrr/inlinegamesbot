@@ -23,6 +23,11 @@ jobs:
       env:
         contents: '${{ secrets.CONFIG_PHP }}'
 
+    - name: Create .env
+      run: echo "$contents" > .env
+      env:
+        contents: '${{ secrets.DOT_ENV }}'
+
     - name: Cache Composer dependencies
       uses: actions/cache@v2
       with:
@@ -39,7 +44,7 @@ jobs:
     - name: Prepare files
       run: |
         mkdir upload/
-        cp -fr bin/ public/ src/ translations/ vendor/ config.php upload/
+        cp -fr bin/ public/ src/ translations/ vendor/ config.php .env upload/
         rm -fr upload/public/.user.ini
 
     - name: Deploy the application
