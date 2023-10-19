@@ -12,8 +12,6 @@ env:
   FTP_PASSWORD: '${{ secrets.FTP_PASSWORD }}'
   FTP_PROTOCOL: '${{ secrets.FTP_PROTOCOL }}'
   FTP_DIR: '${{ secrets.FTP_DIR }}'
-  CONFIG_PHP: '${{ secrets.CONFIG_PHP }}'
-  DOT_ENV: '${{ secrets.DOT_ENV }}'
 
 jobs:
   deploy:
@@ -36,12 +34,16 @@ jobs:
         dev: no
 
     - name: Create config.php
-      if: ${{ env.CONFIG_PHP != '' }}
-      run: echo "$CONFIG_PHP" > config.php
+      env:
+        contents: '${{ secrets.CONFIG_PHP }}'
+      if: ${{ env.contents != '' }}
+      run: echo "$contents" > config.php
 
     - name: Create .env
-      if: ${{ env.DOT_ENV != '' }}
-      run: echo "$DOT_ENV" > .env
+      env:
+        contents: '${{ secrets.DOT_ENV }}'
+      if: ${{ env.contents != '' }}
+      run: echo "$contents" > .env
 
     - name: Prepare files
       run: |
@@ -72,3 +74,4 @@ jobs:
         remoteDir: ${{ env.FTP_DIR }}
         reverse: true
         options: '--verbose'
+        
