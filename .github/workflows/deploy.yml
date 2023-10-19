@@ -6,6 +6,15 @@ on:
       - 'master'
   workflow_dispatch:
 
+env:
+  FTP_SERVER: '${{ secrets.FTP_SERVER }}'
+  FTP_USER: '${{ secrets.FTP_USER }}'
+  FTP_PASSWORD: '${{ secrets.FTP_PASSWORD }}'
+  FTP_PROTOCOL: '${{ secrets.FTP_PROTOCOL }}'
+  FTP_DIR: '${{ secrets.FTP_DIR }}'
+  CONFIG_PHP: '${{ secrets.CONFIG_PHP }}'
+  DOT_ENV: '${{ secrets.DOT_ENV }}'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -27,16 +36,12 @@ jobs:
         dev: no
 
     - name: Create config.php
-      env:
-        contents: '${{ secrets.CONFIG_PHP }}'
-      if: ${{ env.contents != '' }}
-      run: echo "$contents" > config.php
+      if: ${{ env.CONFIG_PHP != '' }}
+      run: echo "$CONFIG_PHP" > config.php
 
     - name: Create .env
-      env:
-        contents: '${{ secrets.DOT_ENV }}'
-      if: ${{ env.contents != '' }}
-      run: echo "$contents" > .env
+      if: ${{ env.DOT_ENV != '' }}
+      run: echo "$DOT_ENV" > .env
 
     - name: Prepare files
       run: |
@@ -45,29 +50,25 @@ jobs:
         rm -fr upload/public/.user.ini
 
     - name: Deploy the application (FTP/FTPS)
-      env:
-        FTP_PROTOCOL: '${{ secrets.FTP_PROTOCOL }}'
-      if: ${{ env.FTP_PROTOCOL == 'ftp' || env.FTP_PROTOCOL == 'ftps' }}
+      if: ${{ env.FTP_SERVER != "" && FTP_USER != "" && FTP_PASSWORD != "" && FTP_DIR != "" && (env.FTP_PROTOCOL == 'ftp' || env.FTP_PROTOCOL == 'ftps') }}
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USER }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ${{ secrets.FTP_PROTOCOL }}
+        server: ${{ env.FTP_SERVER }}
+        username: ${{ env.FTP_USER }}
+        password: ${{ env.FTP_PASSWORD }}
+        protocol: ${{ env.FTP_PROTOCOL }}
         local-dir: upload/
-        server-dir: ${{ secrets.FTP_DIR }}
+        server-dir: ${{ env.FTP_DIR }}
 
     - name: Deploy the application (SFTP)
-      env:
-        FTP_PROTOCOL: '${{ secrets.FTP_PROTOCOL }}'
-      if: ${{ env.FTP_PROTOCOL == 'sftp' }}
+      if: ${{ env.FTP_SERVER != "" && FTP_USER != "" && FTP_PASSWORD != "" && FTP_DIR != "" &&  && env.FTP_PROTOCOL == 'sftp' }}
       uses: pressidium/lftp-mirror-action@v1
       with:
-        host: ${{ secrets.FTP_SERVER }}
-        user: ${{ secrets.FTP_USER }}
-        pass: ${{ secrets.FTP_PASSWORD }}
+        host: ${{ env.FTP_SERVER }}
+        user: ${{ env.FTP_USER }}
+        pass: ${{ env.FTP_PASSWORD }}
         onlyNewer: true
         localDir: 'upload/'
-        remoteDir: ${{ secrets.FTP_DIR }}
+        remoteDir: ${{ env.FTP_DIR }}
         reverse: true
         options: '--verbose'
