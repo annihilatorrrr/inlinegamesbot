@@ -13,21 +13,6 @@ jobs:
     - name: Checkout the repository
       uses: actions/checkout@v3
 
-    - name: Modify Procfile
-      run: |
-        echo "web: ./start.sh" > Procfile
-        chmod +x start.sh worker.sh
-
-    - name: Create config.php
-      run: echo "$contents" > config.php
-      env:
-        contents: '${{ secrets.CONFIG_PHP }}'
-
-    - name: Create .env
-      run: echo "$contents" > .env
-      env:
-        contents: '${{ secrets.DOT_ENV }}'
-
     - name: Cache Composer dependencies
       uses: actions/cache@v2
       with:
@@ -41,6 +26,18 @@ jobs:
         args: --optimize-autoloader --ignore-platform-reqs
         dev: no
 
+    - name: Create config.php
+      env:
+        contents: '${{ secrets.CONFIG_PHP }}'
+      if: ${{ env.contents != '' }}
+      run: echo "$contents" > config.php
+
+    - name: Create .env
+      env:
+        contents: '${{ secrets.DOT_ENV }}'
+      if: ${{ env.contents != '' }}
+      run: echo "$contents" > .env
+
     - name: Prepare files
       run: |
         mkdir upload/
@@ -48,11 +45,14 @@ jobs:
         rm -fr upload/public/.user.ini
 
     - name: Deploy the application
+      env:
+        FTP_SERVER: '${{ secrets.FTP_SERVER }}'
+      if: ${{ env.FTP_SERVER != '' }}
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ftp
+        protocol: ${{ secrets.FTP_PROTOCOL }}
         local-dir: upload/
         server-dir: ${{ secrets.FTP_DIR }}
