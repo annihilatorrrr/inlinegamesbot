@@ -50,7 +50,7 @@ jobs:
         rm -fr upload/public/.user.ini
 
     - name: Deploy the application (FTP/FTPS)
-      if: ${{ env.FTP_SERVER != "" && FTP_USER != "" && FTP_PASSWORD != "" && FTP_DIR != "" && (env.FTP_PROTOCOL == 'ftp' || env.FTP_PROTOCOL == 'ftps') }}
+      if: ${{ env.FTP_SERVER != '' && FTP_USER != '' && FTP_PASSWORD != '' && FTP_DIR != '' && (env.FTP_PROTOCOL == 'ftp' || env.FTP_PROTOCOL == 'ftps') }}
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ env.FTP_SERVER }}
@@ -61,7 +61,7 @@ jobs:
         server-dir: ${{ env.FTP_DIR }}
 
     - name: Deploy the application (SFTP)
-      if: ${{ env.FTP_SERVER != "" && FTP_USER != "" && FTP_PASSWORD != "" && FTP_DIR != "" &&  && env.FTP_PROTOCOL == 'sftp' }}
+      if: ${{ env.FTP_SERVER != '' && FTP_USER != '' && FTP_PASSWORD != '' && FTP_DIR != '' &&  && env.FTP_PROTOCOL == 'sftp' }}
       uses: pressidium/lftp-mirror-action@v1
       with:
         host: ${{ env.FTP_SERVER }}
