@@ -46,8 +46,8 @@ jobs:
 
     - name: Deploy the application (FTP/FTPS)
       env:
-        FTP_SERVER: '${{ secrets.FTP_SERVER }}'
-      if: ${{ env.FTP_SERVER == 'ftp' || env.FTP_SERVER == 'ftps' }}
+        FTP_PROTOCOL: '${{ secrets.FTP_PROTOCOL }}'
+      if: ${{ env.FTP_PROTOCOL == 'ftp' || env.FTP_PROTOCOL == 'ftps' }}
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.FTP_SERVER }}
@@ -59,8 +59,8 @@ jobs:
 
     - name: Deploy the application (SFTP)
       env:
-        FTP_SERVER: '${{ secrets.FTP_SERVER }}'
-      if: ${{ env.FTP_SERVER == 'sftp' }}
+        FTP_PROTOCOL: '${{ secrets.FTP_PROTOCOL }}'
+      if: ${{ env.FTP_PROTOCOL == 'sftp' }}
       uses: pressidium/lftp-mirror-action@v1
       with:
         host: ${{ secrets.FTP_SERVER }}
